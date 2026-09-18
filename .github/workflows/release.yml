@@ -8,10 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: false # no dependencies, so no go.sum to key a cache on
       - run: go test -race -count=1 ./...
       - name: build
         run: |
@@ -20,7 +21,7 @@ jobs:
               -ldflags "-s -w -X main.version=${GITHUB_REF_NAME}" -o dist/jevgate-${t%/*}-${t#*/} .
           done
           (cd dist && sha256sum * > SHA256SUMS)
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/*
           generate_release_notes: true
