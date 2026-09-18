@@ -22,11 +22,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"time"
 )
 
+// version is stamped by the release job. A `go install` build has no
+// ldflags, so it reads the module version the toolchain recorded.
 var version = "dev"
+
+func init() {
+	if info, ok := debug.ReadBuildInfo(); ok && version == "dev" && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		version = info.Main.Version
+	}
+}
 
 // budget is the longest the gate may hold a terminal. Past it, step aside.
 const budget = 4 * time.Second
